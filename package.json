@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "typescript": "^5.2.2",
     "zone.js": "^0.13.1"
   }
 }

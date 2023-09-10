@@ -1,36 +1,22 @@
+"use strict";
 import "zone.js";
 //
-//
-let zone = Zone.current.fork({
-  name: "hook",
-  properties: {
-    user: {
-      name: "User1",
-      password: "hola123",
-      age: 23,
-      address: "Wallaby",
-    },
+const currentZone = Zone.current;
+const childAZone = currentZone.fork({
+  name: "childA",
+  onInvoke(parentZoneDelegate, currentZone, targetZone, delegate, applyThis, applyARgs) {
+    console.log("intercepted in childAZone before execution");
+    parentZoneDelegate.invoke(targetZone, delegate, applyThis, applyARgs);
+    console.log("intercepted in childAZone after execution");
   },
 });
-
-zone.run(() => {
-  setTimeout(function () {
-    console.log("timer callback invoked");
-  }, 1000);
-
-  fetch("https://pokeapi.co/api/v2/pokemon/")
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(data.results);
-      console.log(Zone.current.get("user"));
-    });
+const childBZone = childAZone.fork({
+  name: "childB",
+  onInvoke(parentZoneDelegate, currentZone, targetZone, delegate, applyThis, applyArgs) {
+    console.log("Intercepted in childBZone before execution");
+    parentZoneDelegate.invoke(targetZone, delegate, applyThis, applyArgs);
+    console.log("Intercepted in childBZone after execution");
+  },
 });
-let zone2 = Zone.current.fork({
-  name: "hook2",
-});
-
-// zone.run(() => {
-//   zone2.run(() => {
-//     console.log(Zone.current.name);
-//   });
-// });
+const helloFunction = () => console.log("Hello");
+childBZone.run(helloFunction);
